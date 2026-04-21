@@ -5,7 +5,7 @@ import {
   saveLearning, recallLearnings, indexProject, getDb,
   logExpand, hashQuery,
   auditMemories, saveCheckpoint, getLatestCheckpoint,
-} from "@contextgraph/core";
+} from "@amine-troudi/core";
 import { join } from "node:path";
 
 // Extract the first file-path-like token from a query string to auto-seed context.

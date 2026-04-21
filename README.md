@@ -233,7 +233,7 @@ ctx index [path]       Index a project (default: current directory)
                └───────┬───────┘
                        │
               ┌────────▼────────┐
-              │  @contextgraph/ │
+              │  ContextGraph   │
               │      core       │
               │                 │
               │  SQLite index   │

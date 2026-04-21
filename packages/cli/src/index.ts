@@ -4,7 +4,7 @@ import {
   indexProject, listMemories, deleteMemory, recallLearnings,
   analyzeImpact, computeRiskScore, auditMemories,
   saveCheckpoint, getLatestCheckpoint, listCheckpoints,
-} from "@contextgraph/core";
+} from "@amine-troudi/core";
 import { join, resolve, dirname } from "node:path";
 import { writeFileSync, readFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { spawnSync, spawn } from "node:child_process";
