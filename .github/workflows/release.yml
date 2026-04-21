@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Test
+        run: bun test packages/core/src/__tests__/
+
+      - name: Extract version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - name: Bump versions and resolve workspace deps
+        run: |
+          for pkg in packages/core packages/mcp-contextgraph packages/mcp-blastradius packages/cli; do
+            node -e "
+              const fs = require('fs');
+              const p = JSON.parse(fs.readFileSync('$pkg/package.json'));
+              p.version = process.env.VERSION;
+              if (p.dependencies) {
+                for (const k of Object.keys(p.dependencies)) {
+                  if (k.startsWith('@contextgraph/')) p.dependencies[k] = process.env.VERSION;
+                }
+              }
+              fs.writeFileSync('$pkg/package.json', JSON.stringify(p, null, 2) + '\n');
+            "
+          done
+
+      - name: Set npm auth token
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Publish @contextgraph/core
+        run: cd packages/core && npm publish --access public
+
+      - name: Publish @contextgraph/mcp-contextgraph
+        run: cd packages/mcp-contextgraph && npm publish --access public
+
+      - name: Publish @contextgraph/mcp-blastradius
+        run: cd packages/mcp-blastradius && npm publish --access public
+
+      - name: Publish @contextgraph/cli
+        run: cd packages/cli && npm publish --access public
+
+      - name: Create GitHub release
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

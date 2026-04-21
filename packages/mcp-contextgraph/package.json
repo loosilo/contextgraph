@@ -6,12 +6,13 @@
   "bin": {
     "mcp-contextgraph": "./src/index.ts"
   },
+  "files": ["src"],
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --compile",
     "dev": "bun --hot ./src/index.ts"
   },
   "dependencies": {
-    "@contextgraph/core": "workspace:*",
+    "@contextgraph/core": "0.1.0",
     "@modelcontextprotocol/sdk": "^1.10.2"
   }
 }
