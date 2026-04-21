@@ -1,0 +1,17 @@
+{
+  "name": "@contextgraph/mcp-contextgraph",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "bin": {
+    "mcp-contextgraph": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --compile",
+    "dev": "bun --hot ./src/index.ts"
+  },
+  "dependencies": {
+    "@contextgraph/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.10.2"
+  }
+}

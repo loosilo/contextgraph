@@ -1,0 +1,10 @@
+export { getDb } from "./db.js";
+export { parseFile, type Chunk } from "./parser.js";
+export { embed, embedQuery, cosineSimilarity } from "./embeddings.js";
+export { indexProject, indexFile } from "./indexer.js";
+export { searchContext, type ScoredChunk } from "./scorer.js";
+export { saveLearning, recallLearnings, listMemories, deleteMemory, auditMemories, saveCheckpoint, getLatestCheckpoint, listCheckpoints } from "./memory.js";
+export { buildGraph, analyzeImpact, computeRiskScore, getGraphDistance, type ImpactResult } from "./graph.js";
+export { compressChunks, renderContext, type DensityPreset, type CompressedChunk } from "./compress.js";
+export { rerank } from "./rerank.js";
+export { logExpand, hashQuery, getChunkBoost } from "./feedback.js";
