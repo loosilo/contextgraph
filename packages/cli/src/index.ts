@@ -193,57 +193,77 @@ async function cmdStatus() {
 
 // ── Register ────────────────────────────────────────────────────────────────
 
+function writeJsonConfig(configPath: string, patch: Record<string, unknown>) {
+  let config: Record<string, unknown> = {};
+  if (existsSync(configPath)) {
+    try { config = JSON.parse(readFileSync(configPath, "utf8")); } catch { /**/ }
+  }
+  Object.assign(config, patch);
+  mkdirSync(dirname(configPath), { recursive: true });
+  writeFileSync(configPath, JSON.stringify(config, null, 2));
+}
+
 function cmdRegister() {
   const httpMode = args.includes("--http");
   const bunPath = spawnSync("which", ["bun"], { encoding: "utf8" }).stdout.trim() || "bun";
-  const pids = readPids();
+  const HOME = process.env.HOME ?? "~";
 
-  // Determine config file locations for known editors
-  const configs: { name: string; path: string }[] = [
-    { name: "Claude Code", path: join(process.env.HOME ?? "~", ".claude", "claude_desktop_config.json") },
-    { name: "Cursor",      path: join(process.env.HOME ?? "~", ".cursor", "mcp.json") },
-  ];
+  if (httpMode) {
+    // HTTP mode: write URL-based config for Cursor / Windsurf
+    const pids = readPids();
+    const portCG = pids.contextgraph?.port ?? 3841;
+    const portBR = pids.blastradius?.port ?? 3842;
+    const httpServers = {
+      mcpServers: {
+        contextgraph: { url: `http://localhost:${portCG}/mcp` },
+        blastradius:  { url: `http://localhost:${portBR}/mcp` },
+      },
+    };
 
-  for (const { name, path: configPath } of configs) {
-    let config: Record<string, unknown> = {};
-    if (existsSync(configPath)) {
-      try { config = JSON.parse(readFileSync(configPath, "utf8")); } catch { /**/ }
-    }
-
-    const mcpServers = (config.mcpServers ?? {}) as Record<string, unknown>;
-
-    if (httpMode) {
-      const portCG = pids.contextgraph?.port ?? 3841;
-      const portBR = pids.blastradius?.port ?? 3842;
-      mcpServers["contextgraph"] = { url: `http://localhost:${portCG}/mcp` };
-      mcpServers["blastradius"]  = { url: `http://localhost:${portBR}/mcp` };
-    } else {
-      mcpServers["contextgraph"] = {
-        command: bunPath,
-        args: [MCP_CG_STDIO],
-        env: { PROJECT_ROOT },
-      };
-      mcpServers["blastradius"] = {
-        command: bunPath,
-        args: [MCP_BR_STDIO],
-        env: { PROJECT_ROOT },
-      };
-    }
-
-    config.mcpServers = mcpServers;
-    mkdirSync(dirname(configPath), { recursive: true });
-    writeFileSync(configPath, JSON.stringify(config, null, 2));
-    console.log(chalk.green(`✓ ${name}: ${configPath}`));
-  }
-
-  console.log(chalk.gray("\nRestart your editor to pick up the changes."));
-
-  if (!httpMode) {
-    console.log(chalk.gray("\nMode: stdio (editor manages server lifecycle)"));
-    console.log(chalk.gray("Tip:  run 'cograph start' + 'cograph register --http' for HTTP mode (shared across editors)"));
-  } else {
+    const cursorConfig = join(HOME, ".cursor", "mcp.json");
+    writeJsonConfig(cursorConfig, httpServers);
+    console.log(chalk.green(`✓ Cursor: ${cursorConfig}`));
     console.log(chalk.gray("\nMode: HTTP (servers run independently via 'cograph start')"));
+    console.log(chalk.gray("Restart Cursor or open Settings → MCP to refresh."));
+    return;
   }
+
+  // Stdio mode: register via `claude mcp add` (Claude Code CLI)
+  const claudePath = spawnSync("which", ["claude"], { encoding: "utf8" }).stdout.trim();
+  if (claudePath) {
+    for (const [name, entrypoint] of [["contextgraph", MCP_CG_STDIO], ["blastradius", MCP_BR_STDIO]] as const) {
+      // Remove existing entry first (ignore errors if not present)
+      spawnSync(claudePath, ["mcp", "remove", name, "--scope", "user"], { encoding: "utf8" });
+
+      const result = spawnSync(
+        claudePath,
+        ["mcp", "add", "--scope", "user", name, "-e", `PROJECT_ROOT=${PROJECT_ROOT}`, "--", bunPath, entrypoint],
+        { encoding: "utf8" },
+      );
+      if (result.status === 0) {
+        console.log(chalk.green(`✓ Registered ${name} (Claude Code)`));
+      } else {
+        console.log(chalk.yellow(`⚠  claude mcp add failed for ${name}: ${result.stderr}`));
+      }
+    }
+  } else {
+    console.log(chalk.yellow("⚠  claude CLI not found — skipping Claude Code registration"));
+  }
+
+  // Also write to claude_desktop_config.json for Claude Desktop app
+  const desktopConfig = join(HOME, ".claude", "claude_desktop_config.json");
+  const stdioServers = {
+    mcpServers: {
+      contextgraph: { command: bunPath, args: [MCP_CG_STDIO], env: { PROJECT_ROOT } },
+      blastradius:  { command: bunPath, args: [MCP_BR_STDIO], env: { PROJECT_ROOT } },
+    },
+  };
+  writeJsonConfig(desktopConfig, stdioServers);
+  console.log(chalk.green(`✓ Claude Desktop: ${desktopConfig}`));
+
+  console.log(chalk.gray("\nMode: stdio (editor manages server lifecycle)"));
+  console.log(chalk.gray("Start a new Claude Code session to pick up the changes."));
+  console.log(chalk.gray("Tip:  run 'cograph start' + 'cograph register --http' for Cursor HTTP mode"));
 }
 
 // ── Index ───────────────────────────────────────────────────────────────────
