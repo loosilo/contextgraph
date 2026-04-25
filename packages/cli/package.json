@@ -8,7 +8,7 @@
   },
   "files": ["src"],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --compile --outfile ctx",
+    "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/ctx",
     "dev": "bun ./src/index.ts"
   },
   "dependencies": {

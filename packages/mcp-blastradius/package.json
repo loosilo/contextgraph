@@ -8,11 +8,12 @@
   },
   "files": ["src"],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --compile",
+    "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/mcp-blastradius",
     "dev": "bun --hot ./src/index.ts"
   },
   "dependencies": {
     "@amine-troudi/core": "0.1.0",
-    "@modelcontextprotocol/sdk": "^1.10.2"
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "zod": "^3.25 || ^4.0"
   }
 }

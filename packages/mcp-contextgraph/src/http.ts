@@ -27,7 +27,7 @@ Bun.serve({
       if (!transport) {
         transport = new WebStandardStreamableHTTPServerTransport({
           sessionIdGenerator: () => crypto.randomUUID(),
-          onsessioninitialized: (id) => sessions.set(id, transport!),
+          onsessioninitialized: (id) => { sessions.set(id, transport!); },
         });
         sessions.set(transport.sessionId ?? "default", transport);
         await server.connect(transport);
