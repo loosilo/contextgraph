@@ -5,7 +5,7 @@ Thanks for your interest in contributing. This document covers how to get the pr
 ## Getting started
 
 ```bash
-git clone https://github.com/amine-troudi/contextgraph.git
+git clone https://github.com/loosilo/contextgraph.git
 cd contextgraph
 bun install
 ```
@@ -114,7 +114,7 @@ refactor: extract embedding backend selection to factory function
 
 ## Reporting bugs
 
-Open an issue at https://github.com/amine-troudi/contextgraph/issues with:
+Open an issue at https://github.com/loosilo/contextgraph/issues with:
 - Bun version (`bun --version`)
 - OS and version
 - Steps to reproduce

@@ -11,12 +11,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/amine-troudi/contextgraph.git",
+    "url": "https://github.com/loosilo/contextgraph.git",
     "directory": "packages/mcp-blastradius"
   },
-  "homepage": "https://github.com/amine-troudi/contextgraph#readme",
+  "homepage": "https://github.com/loosilo/contextgraph#readme",
   "bugs": {
-    "url": "https://github.com/amine-troudi/contextgraph/issues"
+    "url": "https://github.com/loosilo/contextgraph/issues"
   },
   "keywords": [
     "mcp",
