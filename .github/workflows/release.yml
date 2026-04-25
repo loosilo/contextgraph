@@ -35,7 +35,7 @@ jobs:
               p.version = process.env.VERSION;
               if (p.dependencies) {
                 for (const k of Object.keys(p.dependencies)) {
-                  if (k.startsWith('@amine-troudi/')) p.dependencies[k] = process.env.VERSION;
+                  if (k.startsWith('@loosilo/')) p.dependencies[k] = process.env.VERSION;
                 }
               }
               fs.writeFileSync('$pkg/package.json', JSON.stringify(p, null, 2) + '\n');
@@ -45,16 +45,16 @@ jobs:
       - name: Set npm auth token
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Publish @amine-troudi/core
+      - name: Publish @loosilo/core
         run: cd packages/core && npm publish --access public
 
-      - name: Publish @amine-troudi/mcp-contextgraph
+      - name: Publish @loosilo/mcp-contextgraph
         run: cd packages/mcp-contextgraph && npm publish --access public
 
-      - name: Publish @amine-troudi/mcp-blastradius
+      - name: Publish @loosilo/mcp-blastradius
         run: cd packages/mcp-blastradius && npm publish --access public
 
-      - name: Publish @amine-troudi/cli
+      - name: Publish @loosilo/cli
         run: cd packages/cli && npm publish --access public
 
       - name: Create GitHub release

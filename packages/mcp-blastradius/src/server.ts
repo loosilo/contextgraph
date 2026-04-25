@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { analyzeImpact, computeRiskScore, buildGraph, getDb } from "@amine-troudi/core";
+import { analyzeImpact, computeRiskScore, buildGraph, getDb } from "@loosilo/core";
 import { join } from "node:path";
 
 export function createBlastRadiusServer(projectRoot: string): McpServer {

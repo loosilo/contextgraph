@@ -1,5 +1,5 @@
 {
-  "name": "@amine-troudi/cli",
+  "name": "@loosilo/cli",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/index.ts",
@@ -12,7 +12,7 @@
     "dev": "bun ./src/index.ts"
   },
   "dependencies": {
-    "@amine-troudi/core": "0.1.0",
+    "@loosilo/core": "0.1.0",
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5"
   }
