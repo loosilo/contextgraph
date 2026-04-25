@@ -19,8 +19,12 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT ?? process.cwd();
 
 const CONTEXTGRAPH_DIR = join(PROJECT_ROOT, ".contextgraph");
 const PIDS_FILE = join(CONTEXTGRAPH_DIR, "servers.json");
-const MCP_CG_PKG = "@loosilo/contextgraph-mcp";
-const MCP_BR_PKG = "@loosilo/blastradius-mcp";
+import { createRequire } from "node:module";
+const _require = createRequire(import.meta.url);
+const MCP_CG_HTTP  = join(dirname(_require.resolve("@loosilo/contextgraph-mcp/package.json")), "src/http.ts");
+const MCP_BR_HTTP  = join(dirname(_require.resolve("@loosilo/blastradius-mcp/package.json")), "src/http.ts");
+const MCP_CG_STDIO = join(dirname(_require.resolve("@loosilo/contextgraph-mcp/package.json")), "src/index.ts");
+const MCP_BR_STDIO = join(dirname(_require.resolve("@loosilo/blastradius-mcp/package.json")), "src/index.ts");
 
 // ── Help ────────────────────────────────────────────────────────────────────
 
@@ -98,16 +102,14 @@ function cmdStart() {
     try { process.kill(existing.blastradius.pid, "SIGTERM"); } catch { /**/ }
   }
 
-  const bunxPath = spawnSync("which", ["bunx"], { encoding: "utf8" }).stdout.trim() || "bunx";
-
-  const cgProc = spawn(bunxPath, [MCP_CG_PKG, "--http"], {
+  const cgProc = spawn(bunPath, [MCP_CG_HTTP], {
     detached: true,
     stdio: "ignore",
     env: { ...process.env, PROJECT_ROOT, PORT: String(portCG) },
   });
   cgProc.unref();
 
-  const brProc = spawn(bunxPath, [MCP_BR_PKG, "--http"], {
+  const brProc = spawn(bunPath, [MCP_BR_HTTP], {
     detached: true,
     stdio: "ignore",
     env: { ...process.env, PROJECT_ROOT, PORT: String(portBR) },
@@ -217,15 +219,14 @@ function cmdRegister() {
       mcpServers["contextgraph"] = { url: `http://localhost:${portCG}/mcp` };
       mcpServers["blastradius"]  = { url: `http://localhost:${portBR}/mcp` };
     } else {
-      const bunxPath = spawnSync("which", ["bunx"], { encoding: "utf8" }).stdout.trim() || "bunx";
       mcpServers["contextgraph"] = {
-        command: bunxPath,
-        args: [MCP_CG_PKG],
+        command: bunPath,
+        args: [MCP_CG_STDIO],
         env: { PROJECT_ROOT },
       };
       mcpServers["blastradius"] = {
-        command: bunxPath,
-        args: [MCP_BR_PKG],
+        command: bunPath,
+        args: [MCP_BR_STDIO],
         env: { PROJECT_ROOT },
       };
     }
