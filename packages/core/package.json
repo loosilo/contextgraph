@@ -1,9 +1,28 @@
 {
   "name": "@loosilo/contextgraph-core",
   "version": "0.1.0",
+  "description": "Core indexing, semantic search, dependency graph, and memory for ContextGraph",
   "type": "module",
   "main": "./src/index.ts",
   "files": ["src", "dist"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amine-troudi/contextgraph.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/amine-troudi/contextgraph#readme",
+  "bugs": {
+    "url": "https://github.com/amine-troudi/contextgraph/issues"
+  },
+  "keywords": [
+    "code-search",
+    "semantic-search",
+    "dependency-graph",
+    "ai-agents",
+    "mcp",
+    "codebase-indexing"
+  ],
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun"
   },

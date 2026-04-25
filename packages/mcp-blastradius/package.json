@@ -1,12 +1,32 @@
 {
   "name": "@loosilo/blastradius-mcp",
   "version": "0.1.0",
+  "description": "MCP server for dependency impact analysis and blast radius scoring",
   "type": "module",
   "main": "./src/index.ts",
   "bin": {
     "mcp-blastradius": "./src/index.ts"
   },
   "files": ["src"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amine-troudi/contextgraph.git",
+    "directory": "packages/mcp-blastradius"
+  },
+  "homepage": "https://github.com/amine-troudi/contextgraph#readme",
+  "bugs": {
+    "url": "https://github.com/amine-troudi/contextgraph/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "dependency-analysis",
+    "blast-radius",
+    "ai-agents",
+    "claude",
+    "cursor"
+  ],
   "scripts": {
     "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/mcp-blastradius",
     "dev": "bun --hot ./src/index.ts"

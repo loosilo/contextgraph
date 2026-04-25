@@ -1,12 +1,34 @@
 {
   "name": "@loosilo/contextgraph-cli",
   "version": "0.1.0",
+  "description": "CLI to manage ContextGraph MCP servers — index, search, memory, and blast radius for AI coding agents",
   "type": "module",
   "main": "./src/index.ts",
   "bin": {
     "cograph": "./src/index.ts"
   },
   "files": ["src"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amine-troudi/contextgraph.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/amine-troudi/contextgraph#readme",
+  "bugs": {
+    "url": "https://github.com/amine-troudi/contextgraph/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cli",
+    "code-search",
+    "semantic-search",
+    "ai-agents",
+    "claude",
+    "cursor",
+    "codebase-indexing"
+  ],
   "scripts": {
     "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/cograph",
     "dev": "bun ./src/index.ts"

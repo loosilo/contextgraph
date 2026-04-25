@@ -1,12 +1,32 @@
 {
   "name": "@loosilo/contextgraph-mcp",
   "version": "0.1.0",
+  "description": "MCP server for semantic code search, memory, and context management",
   "type": "module",
   "main": "./src/index.ts",
   "bin": {
     "mcp-contextgraph": "./src/index.ts"
   },
   "files": ["src"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amine-troudi/contextgraph.git",
+    "directory": "packages/mcp-contextgraph"
+  },
+  "homepage": "https://github.com/amine-troudi/contextgraph#readme",
+  "bugs": {
+    "url": "https://github.com/amine-troudi/contextgraph/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "code-search",
+    "semantic-search",
+    "ai-agents",
+    "claude",
+    "cursor"
+  ],
   "scripts": {
     "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/mcp-contextgraph",
     "dev": "bun --hot ./src/index.ts"
