@@ -1,291 +1,387 @@
 # ContextGraph User Guide
 
-This guide walks you through setting up ContextGraph as MCP servers and using them effectively with your AI coding agent.
+## Table of contents
 
-## Prerequisites
-
-- [Bun](https://bun.sh) v1.0 or later
-- An MCP-compatible editor: Claude Code, Cursor, Windsurf, or similar
-
-No API keys required. Everything runs locally.
-
----
-
-## Part 1: Installation
-
-### Install from source
-
-```bash
-git clone https://github.com/your-org/contextgraph.git
-cd contextgraph
-bun install
-bun run build
-```
-
-Make the `ctx` CLI globally available:
-
-```bash
-bun link
-```
-
-Verify:
-
-```bash
-ctx --help
-```
+1. [Installation](#1-installation)
+2. [Claude Code setup](#2-claude-code-setup)
+3. [Cursor setup](#3-cursor-setup)
+4. [Indexing your project](#4-indexing-your-project)
+5. [Everyday usage](#5-everyday-usage)
+6. [Memory and checkpoints](#6-memory-and-checkpoints)
+7. [Blast radius](#7-blast-radius)
+8. [Embedding backends](#8-embedding-backends)
+9. [CLI reference](#9-cli-reference)
+10. [Troubleshooting](#10-troubleshooting)
 
 ---
 
-## Part 2: Starting the servers
+## 1. Installation
 
-ContextGraph runs as two separate MCP servers:
+Requires [Bun](https://bun.sh) (`curl -fsSL https://bun.sh/install | bash`).
 
-| Server | Port | Purpose |
-|---|---|---|
-| `contextgraph` | 3841 | Semantic search, memory, checkpoints |
-| `blastradius` | 3842 | Dependency impact analysis |
-
-### Start in the background
+**Global install (recommended):**
 
 ```bash
-ctx start
+bun install -g @loosilo/contextgraph-cli
 ```
 
-The servers will start detached and persist across terminal sessions.
+This gives you the `ctx` command everywhere. Run `ctx --version` to confirm.
 
-```
-[contextgraph] HTTP MCP server listening on http://localhost:3841/mcp
-[blastradius]  HTTP MCP server listening on http://localhost:3842/mcp
-```
-
-### Check status
+**No-install (try it first):**
 
 ```bash
-ctx status
-```
-
-Sample output:
-
-```
-contextgraph  RUNNING  pid 12345  http://localhost:3841
-blastradius   RUNNING  pid 12346  http://localhost:3842
-
-Index stats:
-  Chunks indexed:  1,240
-  Memories stored: 18
-  Files tracked:   87
-```
-
-### Stop the servers
-
-```bash
-ctx stop
-```
-
-### Using a different project root
-
-By default the servers index `$PWD`. To point them at a specific project:
-
-```bash
-PROJECT_ROOT=/path/to/my/project ctx start
+bunx @loosilo/contextgraph-cli <command>
 ```
 
 ---
 
-## Part 3: Connecting to your editor
+## 2. Claude Code setup
 
-### Cursor
+Claude Code uses **stdio transport** — it spawns the MCP servers as child processes, so you don't need to run anything in the background.
 
-1. Run `ctx start` (if not already running)
-2. Run `ctx register --http`
-3. Restart Cursor
-4. Go to **Settings → Features → MCP** — both servers should appear
-
-To verify manually, check `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "contextgraph": { "url": "http://localhost:3841/mcp" },
-    "blastradius":  { "url": "http://localhost:3842/mcp" }
-  }
-}
-```
-
-### Claude Code (CLI)
-
-Claude Code can use MCP servers via stdio transport (it manages the process lifecycle):
+### Automatic
 
 ```bash
 ctx register
 ```
 
-This writes to `~/.claude/claude_desktop_config.json`. Restart Claude Code. You should see both tools available in the session.
+This writes MCP server entries to `~/.claude/claude_desktop_config.json`. Claude Code picks up config changes on the next session.
 
-Alternatively, you can configure HTTP transport in Claude Code using the same `url` format as Cursor.
+### Manual
 
-### Windsurf
-
-Add to your Windsurf MCP config file (usually `~/.codeium/windsurf/mcp_config.json`):
+Add to `~/.claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "contextgraph": { "url": "http://localhost:3841/mcp" },
-    "blastradius":  { "url": "http://localhost:3842/mcp" }
+    "contextgraph": {
+      "command": "bunx",
+      "args": ["@loosilo/contextgraph-mcp"],
+      "env": {
+        "PROJECT_ROOT": "/absolute/path/to/your/project"
+      }
+    },
+    "blastradius": {
+      "command": "bunx",
+      "args": ["@loosilo/blastradius-mcp"],
+      "env": {
+        "PROJECT_ROOT": "/absolute/path/to/your/project"
+      }
+    }
   }
 }
 ```
 
-Then restart Windsurf.
+> **Tip:** If you work across multiple projects, omit `PROJECT_ROOT` and set it per-project using a `.env` file or by passing it at the start of each session.
 
-### Manual / other editors
+### Verify
 
-Any editor that supports the MCP HTTP transport (streamable HTTP, MCP SDK 1.x) can connect using:
+Open a Claude Code session and type:
 
 ```
-POST http://localhost:3841/mcp   (contextgraph tools)
-POST http://localhost:3842/mcp   (blastradius tools)
+what MCP tools do you have access to?
 ```
+
+You should see `search_context`, `analyze_impact`, and the rest listed.
 
 ---
 
-## Part 4: Indexing your project
+## 3. Cursor setup
 
-Before you can search or analyze your code, you need to build the index.
+Cursor uses **HTTP transport** — the servers run as background processes and Cursor connects to them over localhost.
 
-### Via the agent
-
-Open a chat in your editor and ask:
-
-```
-Use the index_project tool to index this codebase.
-```
-
-The agent will call `index_project` with the configured `PROJECT_ROOT` and report back how many files were indexed.
-
-### Via the CLI
+### Step 1 — Start the servers
 
 ```bash
-ctx index /path/to/your/project
+ctx start
 ```
 
-### Re-indexing
-
-The index is incremental. Run `index_project` again at any time — only changed files are re-processed. For a full rebuild after a large refactor, you can delete `.contextgraph/index.sqlite` and re-run.
-
----
-
-## Part 5: Using the tools
-
-### `search_context` — find relevant code
+Output:
 
 ```
-Search for how the authentication middleware validates tokens
+contextgraph  started  http://localhost:3841
+blastradius   started  http://localhost:3842
 ```
 
-The agent translates your natural language into an embedding query, retrieves semantically similar chunks, and returns them ranked by relevance. Results improve as you use `expand_chunk` to signal which results were useful.
+Check they are running:
 
-**Parameters:**
-- `query` — what to look for (natural language)
-- `limit` — number of results (default: 10)
-- `contextFile` — if provided, boosts results from files near this file in the dependency graph
-
-### `set_context` — tell the agent your focus
-
-```
-Set context: I'm working in packages/core/src/scorer.ts
+```bash
+ctx status
 ```
 
-This seeds the structural scoring signal so that search results favor code that is close (in the import graph) to your current file.
+### Step 2 — Register with Cursor
 
-### `start_task` — begin a tracked session
-
-```
-Start a task: refactor the scoring pipeline to support pluggable rankers
+```bash
+ctx register --http
 ```
 
-Records a goal in the memory store. Use `get_checkpoint` later to recall where you left off.
+This writes to `~/.cursor/mcp.json`. Open **Cursor Settings → MCP** to confirm both servers appear. If they don't show up, restart Cursor.
 
-### `save_learning` — persist insights
+### Manual config
 
-```
-Save this learning: the BM25 reranker uses k1=1.5, b=0.75 — don't change these without benchmarking
-```
-
-Learnings are stored with embeddings and recalled automatically when you ask questions related to the same topic.
-
-### `recall` — surface stored knowledge
-
-```
-What do we know about the embedding pipeline?
-```
-
-The agent calls `recall` with an embedding of your question and returns the most relevant stored learnings.
-
-### `audit_memories` — prune stale knowledge
-
-```
-Audit memories and mark any that are no longer relevant to the current codebase
-```
-
-Checks each stored learning against the current index. Marks memories as stale if they no longer match any code with a cosine similarity above 0.4.
-
-### `save_checkpoint` / `get_checkpoint` — session state
-
-At the end of a long session:
-
-```
-Save a checkpoint summarizing what we did and what's left to do
-```
-
-At the start of the next session:
-
-```
-Get the latest checkpoint and remind me where we left off
-```
-
-### `analyze_impact` — blast radius before a change
-
-```
-Before I modify packages/core/src/graph.ts, analyze its blast radius
-```
-
-Returns:
-- Direct dependents (depth 1)
-- Transitive dependents (depth 2+)
-- Test files affected
-- Risk score (low / medium / high / critical)
-
-### `safe_to_change` — quick risk check
+Add to `~/.cursor/mcp.json`:
 
 ```json
 {
-  "file": "packages/core/src/db.ts",
-  "risk": "high",
-  "score": 72,
-  "affected": 23,
-  "direct": 5
+  "mcpServers": {
+    "contextgraph": {
+      "url": "http://localhost:3841/mcp"
+    },
+    "blastradius": {
+      "url": "http://localhost:3842/mcp"
+    }
+  }
 }
 ```
 
-### `rebuild_graph` — after large refactors
+### Keep servers running across reboots
+
+Add `ctx start --silent` to your shell profile:
+
+```bash
+# ~/.zshrc or ~/.bashrc
+ctx start --silent 2>/dev/null
+```
+
+### Verify
+
+In a Cursor chat:
 
 ```
-Rebuild the dependency graph
+what MCP tools do you have?
 ```
-
-Re-traces all imports from scratch. Useful after moving files, renaming modules, or updating tsconfig path aliases.
 
 ---
 
-## Part 6: Embedding backends
+## 4. Indexing your project
+
+Before the agent can search your code, it needs to build the index. This only needs to happen once — subsequent calls are incremental and only process changed files.
+
+### From the editor
+
+In Claude Code or Cursor chat:
+
+```
+index this project
+```
+
+The agent calls `index_project` and reports back:
+
+```
+Indexed 142 files, 1 847 chunks.
+```
+
+### From the terminal
+
+```bash
+ctx index /path/to/project
+# or from within the project:
+ctx index
+```
+
+### What gets indexed
+
+- TypeScript and JavaScript (full AST parsing — functions, classes, interfaces, methods)
+- Python (regex chunker — functions, classes)
+- Markdown (section chunker — headings)
+- All other text files are indexed as a single module chunk
+
+Ignored automatically: `node_modules`, `.git`, `dist`, `build`, `__pycache__`, `*.min.js`, binary files.
+
+### Re-indexing
+
+Run `index_project` or `ctx index` any time after significant changes. It is safe to run repeatedly.
+
+---
+
+## 5. Everyday usage
+
+You don't need to remember tool names. Just talk to the agent and it picks the right tool.
+
+### Starting a task
+
+```
+start a task: implement webhook signature verification for Stripe events
+```
+
+The agent calls `start_task`, which:
+1. Searches for relevant memories from past sessions
+2. Pulls the most relevant code chunks
+3. Returns everything combined, ready for you to start coding
+
+### Searching for code
+
+```
+how does session expiry work in this project?
+```
+```
+find where we validate incoming webhook payloads
+```
+```
+show me anything related to rate limiting
+```
+
+These trigger `search_context`. Results are ranked by semantic similarity, import graph proximity to your current file, and recency.
+
+### Telling the agent where you are
+
+When you open a file to edit it:
+
+```
+I'm working on src/auth/middleware.ts
+```
+
+This calls `set_context`, which boosts search results for files nearby in the import graph — so if you search for "token validation" while working on the auth middleware, results from files that import or are imported by that middleware rank higher.
+
+### Expanding a result
+
+If search returns a summary of a chunk and you want the full code:
+
+```
+show me the full implementation of that validateToken function
+```
+
+This calls `expand_chunk`, which also logs that you found it relevant — improving future search results for similar queries.
+
+---
+
+## 6. Memory and checkpoints
+
+### Saving a learning
+
+Whenever you discover something important about the codebase, save it:
+
+```
+remember that all database writes go through the repository pattern — never direct Prisma calls from controllers
+```
+```
+save this: the auth middleware runs before rate limiting in every route
+```
+```
+note: the payment service uses idempotency keys, always pass one
+```
+
+Learnings are stored with embeddings and retrieved automatically in future `start_task` calls when relevant.
+
+### Recalling learnings
+
+```
+what do we know about the payment service?
+```
+```
+recall anything about our database conventions
+```
+
+### Auditing stale learnings
+
+After a major refactor, some saved learnings may no longer match the code:
+
+```
+audit my memories and flag anything stale
+```
+
+The agent checks each learning against the current index and marks ones with no matching code as stale.
+
+### Managing from the terminal
+
+```bash
+ctx memory list                    # see all learnings
+ctx memory recall "rate limiting"  # search by topic
+ctx memory delete <id>             # remove a specific one
+ctx memory audit                   # flag stale ones
+```
+
+### Checkpoints
+
+Save your progress at the end of a session:
+
+```
+save a checkpoint: implemented webhook verification, still need to add tests and update the API docs
+```
+
+Resume next time:
+
+```
+get my last checkpoint
+```
+
+From the terminal:
+
+```bash
+ctx checkpoint save "added rate limiting to auth routes, tests passing"
+ctx checkpoint get
+ctx checkpoint list
+```
+
+---
+
+## 7. Blast radius
+
+Before changing any file, especially a shared utility or core module, check its blast radius first.
+
+### From the editor
+
+```
+what's the blast radius of src/db/client.ts?
+```
+```
+is it safe to change the scorer module?
+```
+```
+analyze the impact of modifying the auth middleware
+```
+
+**`analyze_impact`** returns:
+
+```
+## Blast Radius: src/db/client.ts
+Risk: HIGH (72/100)
+
+Direct dependents (8):
+- src/repositories/user.ts
+- src/repositories/payment.ts
+...
+
+Transitive dependents (23):
+- src/controllers/auth.ts (depth 2)
+...
+
+Test files affected (4):
+- src/__tests__/user.test.ts
+...
+```
+
+**`safe_to_change`** returns a quick summary:
+
+```json
+{ "risk": "high", "score": 72, "affected": 31, "direct": 8 }
+```
+
+### From the terminal
+
+```bash
+ctx blast src/db/client.ts
+```
+
+### After large refactors
+
+If you move files or change `tsconfig.json` path aliases, rebuild the graph:
+
+```
+rebuild the dependency graph
+```
+
+---
+
+## 8. Embedding backends
 
 ### Local (default)
 
-No setup needed. Uses a deterministic Random Projection algorithm over TF-IDF bag-of-words (256 dimensions). Results are meaningful within a single project and require no network access.
+No setup required. Uses Random Projection TF-IDF (256-dim). Semantic similarity works well within a project. Runs fully offline.
 
-### Ollama (recommended for quality)
+### Ollama
+
+Better embedding quality, still fully local:
 
 ```bash
 # Install Ollama: https://ollama.com
@@ -293,90 +389,130 @@ ollama pull nomic-embed-text
 EMBEDDING_BACKEND=ollama ctx start
 ```
 
-`nomic-embed-text` produces significantly better semantic similarity than the local backend. Recommended if you can run Ollama.
-
 ### OpenAI
+
+Best quality. Set your API key and ContextGraph switches automatically:
 
 ```bash
 OPENAI_API_KEY=sk-... ctx start
 ```
 
-When `OPENAI_API_KEY` is present in the environment, ContextGraph automatically switches to `text-embedding-3-small`. Override with `EMBEDDING_BACKEND=local` to force local even when the key is set.
+> Switching backends requires re-indexing the project since embeddings are not compatible across backends.
 
 ---
 
-## Part 7: Data and privacy
+## 9. CLI reference
 
-All data is stored locally in `.contextgraph/index.sqlite` inside your project directory (or the directory configured via `PROJECT_ROOT`). Nothing is sent to any external service unless you configure `EMBEDDING_BACKEND=openai`.
+### Server management
 
-The SQLite database contains:
-- Code chunks (text, file path, line numbers)
-- Embedding vectors
-- File metadata (mtime, size)
-- Dependency graph edges
-- Memories and learnings
-- Session checkpoints
-- Query interaction logs (for feedback boost)
+| Command | Description |
+|---|---|
+| `ctx start` | Start both MCP servers in the background |
+| `ctx stop` | Stop both servers |
+| `ctx status` | Show server status, ports, and index stats |
+| `ctx register` | Write stdio MCP config (Claude Code) |
+| `ctx register --http` | Write HTTP MCP config (Cursor / Windsurf) |
 
-You can inspect or delete the database at any time:
+### Indexing
 
-```bash
-# View stats
-sqlite3 .contextgraph/index.sqlite "SELECT count(*) FROM chunks;"
+| Command | Description |
+|---|---|
+| `ctx index [path]` | Index or re-index a project (default: cwd) |
 
-# Delete everything and start fresh
-rm .contextgraph/index.sqlite
-```
+### Memory
+
+| Command | Description |
+|---|---|
+| `ctx memory list` | List all stored learnings |
+| `ctx memory recall <topic>` | Find learnings by semantic similarity |
+| `ctx memory delete <id>` | Delete a learning by ID |
+| `ctx memory audit` | Flag learnings that no longer match the code |
+
+### Checkpoints
+
+| Command | Description |
+|---|---|
+| `ctx checkpoint save <message>` | Save a session snapshot |
+| `ctx checkpoint get` | Show the latest checkpoint |
+| `ctx checkpoint list` | List all checkpoints |
+
+### Analysis
+
+| Command | Description |
+|---|---|
+| `ctx blast <file>` | Show blast radius and risk score for a file |
+
+### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `PROJECT_ROOT` | `cwd` | Project to index |
+| `EMBEDDING_BACKEND` | `local` | `local` \| `ollama` \| `openai` |
+| `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
+| `OLLAMA_MODEL` | `nomic-embed-text` | Ollama embedding model |
+| `OPENAI_API_KEY` | _(unset)_ | Enables OpenAI backend automatically |
+| `PORT_CG` | `3841` | contextgraph HTTP port |
+| `PORT_BR` | `3842` | blastradius HTTP port |
 
 ---
 
-## Part 8: Troubleshooting
+## 10. Troubleshooting
 
-### Servers won't start
+### MCP tools not appearing in Claude Code
 
-Check if the ports are already in use:
+1. Run `ctx register` and check the output for errors
+2. Verify `~/.claude/claude_desktop_config.json` contains the `contextgraph` and `blastradius` entries
+3. Make sure `bunx` is in your PATH (`which bunx`)
+4. Start a new Claude Code session
 
-```bash
-lsof -i :3841
-lsof -i :3842
-```
-
-If something else is using those ports, stop it or use different ports:
-
-```bash
-PORT=4841 ctx start   # only changes contextgraph port — set BLASTRADIUS_PORT separately
-```
-
-### Tools not appearing in editor
+### MCP tools not appearing in Cursor
 
 1. Confirm servers are running: `ctx status`
-2. Confirm config was written: `cat ~/.cursor/mcp.json`
-3. Restart the editor (many MCP clients only load config on startup)
-4. Check the editor's MCP/tools panel for error messages
+2. If not running, start them: `ctx start`
+3. Check `~/.cursor/mcp.json` contains the correct URLs
+4. Open Cursor Settings → MCP and click the refresh icon
+5. Restart Cursor if needed
 
-### Search returns poor results
+### Servers fail to start
 
-1. Make sure the project is indexed: ask the agent to run `index_project`
-2. Try `set_context` to anchor results to your current file
-3. If using the local backend, consider switching to Ollama for better embeddings
+```bash
+ctx status   # check what's already running on those ports
+ctx stop     # stop any zombie processes
+ctx start    # try again
+```
 
-### Stale dependencies in blast radius
+If port 3841 or 3842 is in use, set different ports:
 
-Run `rebuild_graph` after:
-- Moving or renaming files
-- Changing tsconfig `paths` aliases
-- Adding new barrel exports (`index.ts` files)
+```bash
+PORT_CG=4841 PORT_BR=4842 ctx start
+PORT_CG=4841 PORT_BR=4842 ctx register --http
+```
 
----
+### Search results are poor quality
 
-## Part 9: Uninstalling
+1. Make sure the project is indexed: `ctx index`
+2. Tell the agent what file you're editing to improve structural ranking
+3. Consider switching to Ollama or OpenAI backend for better semantic quality
+4. Re-index after adding new files: `ctx index`
+
+### Index is missing new files
+
+Run `ctx index` — it only processes files that changed since last index, so it's fast.
+
+### Stale memories causing confusion
+
+```bash
+ctx memory audit
+ctx memory list   # review flagged ones
+ctx memory delete <id>
+```
+
+### Uninstall
 
 ```bash
 ctx stop
-bun unlink   # remove the global ctx command
-rm -rf /path/to/contextgraph   # remove the repository
-
-# Remove editor configs (optional)
-# ~/.cursor/mcp.json — remove the contextgraph and blastradius entries
-# ~/.claude/claude_desktop_config.json — same
+bun remove -g @loosilo/contextgraph-cli
+rm -rf /path/to/project/.contextgraph
 ```
+
+Remove the MCP config entries from `~/.claude/claude_desktop_config.json` and `~/.cursor/mcp.json` manually.
