@@ -1,0 +1,141 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#0d1117" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nodeGlowL" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="600" fill="#0d1117"/>
+  <rect width="1200" height="600" fill="url(#bgGlow)"/>
+
+  <!-- Subtle dot grid -->
+  <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="1" r="1" fill="#21262d"/>
+  </pattern>
+  <rect width="1200" height="600" fill="url(#dots)"/>
+
+  <!-- ── Left graph cluster ─────────────────────────────────────── -->
+
+  <!-- Edges -->
+  <line x1="130" y1="170" x2="230" y2="110" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.35"/>
+  <line x1="130" y1="170" x2="190" y2="290" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.35"/>
+  <line x1="130" y1="170" x2="60"  y2="300" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.25"/>
+  <line x1="230" y1="110" x2="320" y2="190" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.3"/>
+  <line x1="190" y1="290" x2="320" y2="190" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.35"/>
+  <line x1="190" y1="290" x2="90"  y2="400" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.25"/>
+  <line x1="320" y1="190" x2="400" y2="300" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="60"  y1="300" x2="90"  y2="400" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="90"  y1="400" x2="200" y2="440" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="200" y1="440" x2="320" y2="390" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="320" y1="390" x2="400" y2="300" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.18"/>
+  <line x1="230" y1="110" x2="170" y2="60"  stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="320" y1="190" x2="380" y2="120" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.18"/>
+
+  <!-- Nodes -->
+  <circle cx="130" cy="170" r="13" fill="#22d3ee" fill-opacity="0.95" filter="url(#glow)"/>
+  <circle cx="230" cy="110" r="8"  fill="#22d3ee" fill-opacity="0.75" filter="url(#glow)"/>
+  <circle cx="190" cy="290" r="10" fill="#22d3ee" fill-opacity="0.8"  filter="url(#glow)"/>
+  <circle cx="60"  cy="300" r="6"  fill="#22d3ee" fill-opacity="0.55"/>
+  <circle cx="320" cy="190" r="9"  fill="#22d3ee" fill-opacity="0.7"  filter="url(#glow)"/>
+  <circle cx="90"  cy="400" r="6"  fill="#22d3ee" fill-opacity="0.5"/>
+  <circle cx="400" cy="300" r="5"  fill="#22d3ee" fill-opacity="0.4"/>
+  <circle cx="200" cy="440" r="5"  fill="#22d3ee" fill-opacity="0.4"/>
+  <circle cx="320" cy="390" r="5"  fill="#22d3ee" fill-opacity="0.4"/>
+  <circle cx="170" cy="60"  r="4"  fill="#22d3ee" fill-opacity="0.35"/>
+  <circle cx="380" cy="120" r="4"  fill="#22d3ee" fill-opacity="0.3"/>
+
+  <!-- ── Right graph cluster ────────────────────────────────────── -->
+
+  <!-- Edges -->
+  <line x1="1070" y1="170" x2="970"  y2="110" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.35"/>
+  <line x1="1070" y1="170" x2="1010" y2="290" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.35"/>
+  <line x1="1070" y1="170" x2="1140" y2="300" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.25"/>
+  <line x1="970"  y1="110" x2="880"  y2="190" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.3"/>
+  <line x1="1010" y1="290" x2="880"  y2="190" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.35"/>
+  <line x1="1010" y1="290" x2="1110" y2="400" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.25"/>
+  <line x1="880"  y1="190" x2="800"  y2="300" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="1140" y1="300" x2="1110" y2="400" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="1110" y1="400" x2="1000" y2="440" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="1000" y1="440" x2="880"  y2="390" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="880"  y1="390" x2="800"  y2="300" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.18"/>
+  <line x1="970"  y1="110" x2="1030" y2="60"  stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.2"/>
+  <line x1="880"  y1="190" x2="820"  y2="120" stroke="#22d3ee" stroke-width="1"   stroke-opacity="0.18"/>
+
+  <!-- Nodes -->
+  <circle cx="1070" cy="170" r="13" fill="#22d3ee" fill-opacity="0.95" filter="url(#glow)"/>
+  <circle cx="970"  cy="110" r="8"  fill="#22d3ee" fill-opacity="0.75" filter="url(#glow)"/>
+  <circle cx="1010" cy="290" r="10" fill="#22d3ee" fill-opacity="0.8"  filter="url(#glow)"/>
+  <circle cx="1140" cy="300" r="6"  fill="#22d3ee" fill-opacity="0.55"/>
+  <circle cx="880"  cy="190" r="9"  fill="#22d3ee" fill-opacity="0.7"  filter="url(#glow)"/>
+  <circle cx="1110" cy="400" r="6"  fill="#22d3ee" fill-opacity="0.5"/>
+  <circle cx="800"  cy="300" r="5"  fill="#22d3ee" fill-opacity="0.4"/>
+  <circle cx="1000" cy="440" r="5"  fill="#22d3ee" fill-opacity="0.4"/>
+  <circle cx="880"  cy="390" r="5"  fill="#22d3ee" fill-opacity="0.4"/>
+  <circle cx="1030" cy="60"  r="4"  fill="#22d3ee" fill-opacity="0.35"/>
+  <circle cx="820"  cy="120" r="4"  fill="#22d3ee" fill-opacity="0.3"/>
+
+  <!-- Fade edges reaching toward center text -->
+  <line x1="400" y1="300" x2="460" y2="310" stroke="#22d3ee" stroke-width="1" stroke-opacity="0.12"/>
+  <line x1="800" y1="300" x2="740" y2="310" stroke="#22d3ee" stroke-width="1" stroke-opacity="0.12"/>
+
+  <!-- ── Center content ─────────────────────────────────────────── -->
+
+  <!-- Main wordmark -->
+  <text
+    x="600" y="258"
+    font-family="'SF Mono','Fira Code','Fira Mono','Roboto Mono',ui-monospace,monospace"
+    font-size="88"
+    font-weight="700"
+    fill="#f0f6fc"
+    text-anchor="middle"
+    letter-spacing="-3"
+  >cograph</text>
+
+  <!-- Cyan accent underline -->
+  <rect x="430" y="270" width="340" height="2.5" rx="1.5" fill="#22d3ee" fill-opacity="0.5"/>
+
+  <!-- Subtitle -->
+  <text
+    x="600" y="318"
+    font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
+    font-size="19"
+    fill="#8b949e"
+    text-anchor="middle"
+    letter-spacing="0.2"
+  >Semantic code search &amp; blast radius · built for AI coding agents</text>
+
+  <!-- Pill badges -->
+  <!-- MCP -->
+  <rect x="442" y="345" width="56" height="26" rx="13" fill="#22d3ee" fill-opacity="0.12" stroke="#22d3ee" stroke-opacity="0.45" stroke-width="1"/>
+  <text x="470" y="363" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" font-weight="600" fill="#22d3ee" text-anchor="middle" letter-spacing="0.5">MCP</text>
+
+  <!-- Claude Code -->
+  <rect x="508" y="345" width="102" height="26" rx="13" fill="#f78166" fill-opacity="0.1" stroke="#f78166" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="559" y="363" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" font-weight="600" fill="#f78166" text-anchor="middle" letter-spacing="0.3">Claude Code</text>
+
+  <!-- Cursor -->
+  <rect x="620" y="345" width="70" height="26" rx="13" fill="#a5b4fc" fill-opacity="0.1" stroke="#a5b4fc" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="655" y="363" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" font-weight="600" fill="#a5b4fc" text-anchor="middle" letter-spacing="0.3">Cursor</text>
+
+  <!-- Install command box -->
+  <rect x="370" y="400" width="460" height="46" rx="9" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="408" y="428" font-family="'SF Mono','Fira Code',monospace" font-size="14" fill="#484f58">$</text>
+  <text x="426" y="428" font-family="'SF Mono','Fira Code',monospace" font-size="14" fill="#c9d1d9">bun install -g <tspan fill="#22d3ee">@loosilo/contextgraph-cli</tspan></text>
+
+  <!-- Footer -->
+  <text x="600" y="530" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#30363d" text-anchor="middle">github.com/loosilo/contextgraph</text>
+</svg>

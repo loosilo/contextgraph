@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="./assets/banner.svg" alt="cograph — semantic code search &amp; blast radius for AI coding agents" width="100%"/>
+</div>
+
 # ContextGraph
 
 > Long-term memory and change-impact analysis for AI coding agents — runs entirely on your machine, no API keys required.
