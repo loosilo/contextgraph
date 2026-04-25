@@ -8,9 +8,9 @@ import {
 import { join, resolve, dirname } from "node:path";
 import { writeFileSync, readFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { spawnSync, spawn } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const _require = createRequire(import.meta.url);
 const args = process.argv.slice(2);
 const command = args[0];
 const PROJECT_ROOT = process.env.PROJECT_ROOT ?? process.cwd();
@@ -19,8 +19,6 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT ?? process.cwd();
 
 const CONTEXTGRAPH_DIR = join(PROJECT_ROOT, ".contextgraph");
 const PIDS_FILE = join(CONTEXTGRAPH_DIR, "servers.json");
-import { createRequire } from "node:module";
-const _require = createRequire(import.meta.url);
 const MCP_CG_HTTP  = join(dirname(_require.resolve("@loosilo/contextgraph-mcp/package.json")), "src/http.ts");
 const MCP_BR_HTTP  = join(dirname(_require.resolve("@loosilo/blastradius-mcp/package.json")), "src/http.ts");
 const MCP_CG_STDIO = join(dirname(_require.resolve("@loosilo/contextgraph-mcp/package.json")), "src/index.ts");
@@ -147,7 +145,7 @@ function cmdStop() {
   if (stopped === 0) console.log("No servers were running.");
 }
 
-function cmdStatus() {
+async function cmdStatus() {
   // Server processes
   const pids = readPids();
   console.log(chalk.bold("MCP Servers"));
@@ -171,7 +169,7 @@ function cmdStatus() {
     return;
   }
 
-  const { Database } = require("bun:sqlite");
+  const { Database } = await import("bun:sqlite");
   const db = new Database(dbPath);
   const chunks   = (db.query("SELECT COUNT(*) as n FROM chunks").get()      as { n: number }).n;
   const memories = (db.query("SELECT COUNT(*) as n FROM memories").get()    as { n: number }).n;
@@ -392,7 +390,7 @@ if (!command || command === "--help" || command === "help") {
 } else if (command === "stop") {
   cmdStop();
 } else if (command === "status") {
-  cmdStatus();
+  await cmdStatus();
 } else if (command === "register") {
   cmdRegister();
 } else if (command === "index") {
