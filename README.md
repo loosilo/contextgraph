@@ -23,14 +23,14 @@ Requires [Bun](https://bun.sh).
 bunx @loosilo/contextgraph-cli setup
 ```
 
-Or install globally to get the `ctx` command:
+Or install globally to get the `cograph` command:
 
 ```bash
 bun install -g @loosilo/contextgraph-cli
-ctx setup
+cograph setup
 ```
 
-`ctx setup` walks you through indexing your project and registering the MCP servers with your editor.
+`cograph setup` walks you through indexing your project and registering the MCP servers with your editor.
 
 ---
 
@@ -39,7 +39,7 @@ ctx setup
 ### Automatic (recommended)
 
 ```bash
-ctx register
+cograph register
 ```
 
 This writes the MCP server config to `~/.claude/claude_desktop_config.json`. Restart Claude Code and the tools will be available immediately.
@@ -110,7 +110,7 @@ Cursor connects to ContextGraph over HTTP, so the servers need to be running in 
 ### 1. Start the servers
 
 ```bash
-ctx start
+cograph start
 ```
 
 This launches both servers:
@@ -120,7 +120,7 @@ This launches both servers:
 ### 2. Register with Cursor
 
 ```bash
-ctx register --http
+cograph register --http
 ```
 
 This writes to `~/.cursor/mcp.json`. Open **Cursor Settings → MCP** to confirm both servers appear. If not, restart Cursor.
@@ -169,11 +169,11 @@ pick up from my last checkpoint
 
 ### Keep servers running
 
-Add `ctx start` to your shell profile or system startup so servers are always available when Cursor opens:
+Add `cograph start` to your shell profile or system startup so servers are always available when Cursor opens:
 
 ```bash
 # in ~/.zshrc or ~/.bashrc
-ctx start --silent 2>/dev/null
+cograph start --silent 2>/dev/null
 ```
 
 ---
@@ -181,22 +181,22 @@ ctx start --silent 2>/dev/null
 ## CLI reference
 
 ```
-ctx setup                  Guided setup: index project + register with editors
-ctx start                  Start both MCP servers in the background
-ctx stop                   Stop both MCP servers
-ctx status                 Show server status and index stats
-ctx register               Write stdio MCP config (Claude Code)
-ctx register --http        Write HTTP MCP config (Cursor / Windsurf)
-ctx index [path]           Index or re-index a project
-ctx blast <file>           Show blast radius for a file from the terminal
-ctx memory list            List all stored learnings
-ctx memory recall <topic>  Find learnings relevant to a topic
-ctx memory delete <id>     Delete a learning by ID
-ctx memory audit           Flag learnings that no longer match any code
-ctx checkpoint save <msg>  Save a session snapshot
-ctx checkpoint get         Show the latest checkpoint
-ctx checkpoint list        List all checkpoints
-ctx instructions           Print the recommended system prompt snippet
+cograph setup                  Guided setup: index project + register with editors
+cograph start                  Start both MCP servers in the background
+cograph stop                   Stop both MCP servers
+cograph status                 Show server status and index stats
+cograph register               Write stdio MCP config (Claude Code)
+cograph register --http        Write HTTP MCP config (Cursor / Windsurf)
+cograph index [path]           Index or re-index a project
+cograph blast <file>           Show blast radius for a file from the terminal
+cograph memory list            List all stored learnings
+cograph memory recall <topic>  Find learnings relevant to a topic
+cograph memory delete <id>     Delete a learning by ID
+cograph memory audit           Flag learnings that no longer match any code
+cograph checkpoint save <msg>  Save a session snapshot
+cograph checkpoint get         Show the latest checkpoint
+cograph checkpoint list        List all checkpoints
+cograph instructions           Print the recommended system prompt snippet
 ```
 
 ---
@@ -236,13 +236,13 @@ ctx instructions           Print the recommended system prompt snippet
 
 ```bash
 ollama pull nomic-embed-text
-EMBEDDING_BACKEND=ollama ctx start
+EMBEDDING_BACKEND=ollama cograph start
 ```
 
 **OpenAI** — best quality, requires an API key:
 
 ```bash
-OPENAI_API_KEY=sk-... ctx start
+OPENAI_API_KEY=sk-... cograph start
 ```
 
 Set `OPENAI_API_KEY` in your environment and ContextGraph switches automatically.
@@ -297,7 +297,7 @@ Set `OPENAI_API_KEY` in your environment and ContextGraph switches automatically
 
 | Package | Description |
 |---|---|
-| [`@loosilo/contextgraph-cli`](https://www.npmjs.com/package/@loosilo/contextgraph-cli) | `ctx` CLI — server management, indexing, memory, checkpoints |
+| [`@loosilo/contextgraph-cli`](https://www.npmjs.com/package/@loosilo/contextgraph-cli) | `cograph` CLI — server management, indexing, memory, checkpoints |
 | [`@loosilo/contextgraph-mcp`](https://www.npmjs.com/package/@loosilo/contextgraph-mcp) | MCP server for semantic search and memory |
 | [`@loosilo/blastradius-mcp`](https://www.npmjs.com/package/@loosilo/blastradius-mcp) | MCP server for dependency impact analysis |
 | [`@loosilo/contextgraph-core`](https://www.npmjs.com/package/@loosilo/contextgraph-core) | Core library (indexing, scoring, graph, memory) |

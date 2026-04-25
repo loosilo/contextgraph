@@ -25,7 +25,7 @@ Requires [Bun](https://bun.sh) (`curl -fsSL https://bun.sh/install | bash`).
 bun install -g @loosilo/contextgraph-cli
 ```
 
-This gives you the `ctx` command everywhere. Run `ctx --version` to confirm.
+This gives you the `cograph` command everywhere. Run `cograph --version` to confirm.
 
 **No-install (try it first):**
 
@@ -42,7 +42,7 @@ Claude Code uses **stdio transport** — it spawns the MCP servers as child proc
 ### Automatic
 
 ```bash
-ctx register
+cograph register
 ```
 
 This writes MCP server entries to `~/.claude/claude_desktop_config.json`. Claude Code picks up config changes on the next session.
@@ -93,7 +93,7 @@ Cursor uses **HTTP transport** — the servers run as background processes and C
 ### Step 1 — Start the servers
 
 ```bash
-ctx start
+cograph start
 ```
 
 Output:
@@ -106,13 +106,13 @@ blastradius   started  http://localhost:3842
 Check they are running:
 
 ```bash
-ctx status
+cograph status
 ```
 
 ### Step 2 — Register with Cursor
 
 ```bash
-ctx register --http
+cograph register --http
 ```
 
 This writes to `~/.cursor/mcp.json`. Open **Cursor Settings → MCP** to confirm both servers appear. If they don't show up, restart Cursor.
@@ -136,11 +136,11 @@ Add to `~/.cursor/mcp.json`:
 
 ### Keep servers running across reboots
 
-Add `ctx start --silent` to your shell profile:
+Add `cograph start --silent` to your shell profile:
 
 ```bash
 # ~/.zshrc or ~/.bashrc
-ctx start --silent 2>/dev/null
+cograph start --silent 2>/dev/null
 ```
 
 ### Verify
@@ -174,9 +174,9 @@ Indexed 142 files, 1 847 chunks.
 ### From the terminal
 
 ```bash
-ctx index /path/to/project
+cograph index /path/to/project
 # or from within the project:
-ctx index
+cograph index
 ```
 
 ### What gets indexed
@@ -190,7 +190,7 @@ Ignored automatically: `node_modules`, `.git`, `dist`, `build`, `__pycache__`, `
 
 ### Re-indexing
 
-Run `index_project` or `ctx index` any time after significant changes. It is safe to run repeatedly.
+Run `index_project` or `cograph index` any time after significant changes. It is safe to run repeatedly.
 
 ---
 
@@ -285,10 +285,10 @@ The agent checks each learning against the current index and marks ones with no 
 ### Managing from the terminal
 
 ```bash
-ctx memory list                    # see all learnings
-ctx memory recall "rate limiting"  # search by topic
-ctx memory delete <id>             # remove a specific one
-ctx memory audit                   # flag stale ones
+cograph memory list                    # see all learnings
+cograph memory recall "rate limiting"  # search by topic
+cograph memory delete <id>             # remove a specific one
+cograph memory audit                   # flag stale ones
 ```
 
 ### Checkpoints
@@ -308,9 +308,9 @@ get my last checkpoint
 From the terminal:
 
 ```bash
-ctx checkpoint save "added rate limiting to auth routes, tests passing"
-ctx checkpoint get
-ctx checkpoint list
+cograph checkpoint save "added rate limiting to auth routes, tests passing"
+cograph checkpoint get
+cograph checkpoint list
 ```
 
 ---
@@ -360,7 +360,7 @@ Test files affected (4):
 ### From the terminal
 
 ```bash
-ctx blast src/db/client.ts
+cograph blast src/db/client.ts
 ```
 
 ### After large refactors
@@ -386,7 +386,7 @@ Better embedding quality, still fully local:
 ```bash
 # Install Ollama: https://ollama.com
 ollama pull nomic-embed-text
-EMBEDDING_BACKEND=ollama ctx start
+EMBEDDING_BACKEND=ollama cograph start
 ```
 
 ### OpenAI
@@ -394,7 +394,7 @@ EMBEDDING_BACKEND=ollama ctx start
 Best quality. Set your API key and ContextGraph switches automatically:
 
 ```bash
-OPENAI_API_KEY=sk-... ctx start
+OPENAI_API_KEY=sk-... cograph start
 ```
 
 > Switching backends requires re-indexing the project since embeddings are not compatible across backends.
@@ -407,40 +407,40 @@ OPENAI_API_KEY=sk-... ctx start
 
 | Command | Description |
 |---|---|
-| `ctx start` | Start both MCP servers in the background |
-| `ctx stop` | Stop both servers |
-| `ctx status` | Show server status, ports, and index stats |
-| `ctx register` | Write stdio MCP config (Claude Code) |
-| `ctx register --http` | Write HTTP MCP config (Cursor / Windsurf) |
+| `cograph start` | Start both MCP servers in the background |
+| `cograph stop` | Stop both servers |
+| `cograph status` | Show server status, ports, and index stats |
+| `cograph register` | Write stdio MCP config (Claude Code) |
+| `cograph register --http` | Write HTTP MCP config (Cursor / Windsurf) |
 
 ### Indexing
 
 | Command | Description |
 |---|---|
-| `ctx index [path]` | Index or re-index a project (default: cwd) |
+| `cograph index [path]` | Index or re-index a project (default: cwd) |
 
 ### Memory
 
 | Command | Description |
 |---|---|
-| `ctx memory list` | List all stored learnings |
-| `ctx memory recall <topic>` | Find learnings by semantic similarity |
-| `ctx memory delete <id>` | Delete a learning by ID |
-| `ctx memory audit` | Flag learnings that no longer match the code |
+| `cograph memory list` | List all stored learnings |
+| `cograph memory recall <topic>` | Find learnings by semantic similarity |
+| `cograph memory delete <id>` | Delete a learning by ID |
+| `cograph memory audit` | Flag learnings that no longer match the code |
 
 ### Checkpoints
 
 | Command | Description |
 |---|---|
-| `ctx checkpoint save <message>` | Save a session snapshot |
-| `ctx checkpoint get` | Show the latest checkpoint |
-| `ctx checkpoint list` | List all checkpoints |
+| `cograph checkpoint save <message>` | Save a session snapshot |
+| `cograph checkpoint get` | Show the latest checkpoint |
+| `cograph checkpoint list` | List all checkpoints |
 
 ### Analysis
 
 | Command | Description |
 |---|---|
-| `ctx blast <file>` | Show blast radius and risk score for a file |
+| `cograph blast <file>` | Show blast radius and risk score for a file |
 
 ### Environment variables
 
@@ -460,15 +460,15 @@ OPENAI_API_KEY=sk-... ctx start
 
 ### MCP tools not appearing in Claude Code
 
-1. Run `ctx register` and check the output for errors
+1. Run `cograph register` and check the output for errors
 2. Verify `~/.claude/claude_desktop_config.json` contains the `contextgraph` and `blastradius` entries
 3. Make sure `bunx` is in your PATH (`which bunx`)
 4. Start a new Claude Code session
 
 ### MCP tools not appearing in Cursor
 
-1. Confirm servers are running: `ctx status`
-2. If not running, start them: `ctx start`
+1. Confirm servers are running: `cograph status`
+2. If not running, start them: `cograph start`
 3. Check `~/.cursor/mcp.json` contains the correct URLs
 4. Open Cursor Settings → MCP and click the refresh icon
 5. Restart Cursor if needed
@@ -476,41 +476,41 @@ OPENAI_API_KEY=sk-... ctx start
 ### Servers fail to start
 
 ```bash
-ctx status   # check what's already running on those ports
-ctx stop     # stop any zombie processes
-ctx start    # try again
+cograph status   # check what's already running on those ports
+cograph stop     # stop any zombie processes
+cograph start    # try again
 ```
 
 If port 3841 or 3842 is in use, set different ports:
 
 ```bash
-PORT_CG=4841 PORT_BR=4842 ctx start
-PORT_CG=4841 PORT_BR=4842 ctx register --http
+PORT_CG=4841 PORT_BR=4842 cograph start
+PORT_CG=4841 PORT_BR=4842 cograph register --http
 ```
 
 ### Search results are poor quality
 
-1. Make sure the project is indexed: `ctx index`
+1. Make sure the project is indexed: `cograph index`
 2. Tell the agent what file you're editing to improve structural ranking
 3. Consider switching to Ollama or OpenAI backend for better semantic quality
-4. Re-index after adding new files: `ctx index`
+4. Re-index after adding new files: `cograph index`
 
 ### Index is missing new files
 
-Run `ctx index` — it only processes files that changed since last index, so it's fast.
+Run `cograph index` — it only processes files that changed since last index, so it's fast.
 
 ### Stale memories causing confusion
 
 ```bash
-ctx memory audit
-ctx memory list   # review flagged ones
-ctx memory delete <id>
+cograph memory audit
+cograph memory list   # review flagged ones
+cograph memory delete <id>
 ```
 
 ### Uninstall
 
 ```bash
-ctx stop
+cograph stop
 bun remove -g @loosilo/contextgraph-cli
 rm -rf /path/to/project/.contextgraph
 ```

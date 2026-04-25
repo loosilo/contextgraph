@@ -28,40 +28,40 @@ const MCP_BR_STDIO  = resolve(__dirname, "../../mcp-blastradius/src/index.ts");
 
 function help() {
   console.log(`
-${chalk.bold("ctx")} — ContextGraph control plane
+${chalk.bold("cograph")} — ContextGraph control plane
 
 ${chalk.bold("Server management:")}
 
-  ${chalk.cyan("ctx start")}                          Start both MCP servers (HTTP mode)
-  ${chalk.cyan("ctx stop")}                           Stop running MCP servers
-  ${chalk.cyan("ctx status")}                         Show server status and index stats
-  ${chalk.cyan("ctx register")}                       Write stdio config for Claude Code / Cursor
-  ${chalk.cyan("ctx register --http")}                Write HTTP config (use after ctx start)
+  ${chalk.cyan("cograph start")}                          Start both MCP servers (HTTP mode)
+  ${chalk.cyan("cograph stop")}                           Stop running MCP servers
+  ${chalk.cyan("cograph status")}                         Show server status and index stats
+  ${chalk.cyan("cograph register")}                       Write stdio config for Claude Code / Cursor
+  ${chalk.cyan("cograph register --http")}                Write HTTP config (use after cograph start)
 
 ${chalk.bold("Indexing:")}
 
-  ${chalk.cyan("ctx index")} [path]                   Index/re-index a project (default: cwd)
+  ${chalk.cyan("cograph index")} [path]                   Index/re-index a project (default: cwd)
 
 ${chalk.bold("Memory:")}
 
-  ${chalk.cyan("ctx memory list")}                    List all stored memories
-  ${chalk.cyan("ctx memory recall")} <topic>          Recall memories about a topic
-  ${chalk.cyan("ctx memory delete")} <id>             Delete a memory by ID
-  ${chalk.cyan("ctx memory audit")}                   Flag stale memories (no matching code)
+  ${chalk.cyan("cograph memory list")}                    List all stored memories
+  ${chalk.cyan("cograph memory recall")} <topic>          Recall memories about a topic
+  ${chalk.cyan("cograph memory delete")} <id>             Delete a memory by ID
+  ${chalk.cyan("cograph memory audit")}                   Flag stale memories (no matching code)
 
 ${chalk.bold("Checkpoints:")}
 
-  ${chalk.cyan("ctx checkpoint save")} <summary>      Save session checkpoint
-  ${chalk.cyan("ctx checkpoint get")}                 Show latest checkpoint
-  ${chalk.cyan("ctx checkpoint list")}                List all checkpoints
+  ${chalk.cyan("cograph checkpoint save")} <summary>      Save session checkpoint
+  ${chalk.cyan("cograph checkpoint get")}                 Show latest checkpoint
+  ${chalk.cyan("cograph checkpoint list")}                List all checkpoints
 
 ${chalk.bold("Analysis:")}
 
-  ${chalk.cyan("ctx blast")} <file>                   Analyze blast radius for a file
+  ${chalk.cyan("cograph blast")} <file>                   Analyze blast radius for a file
 
 ${chalk.bold("Setup:")}
 
-  ${chalk.cyan("ctx instructions")}                   Print system-prompt snippet to auto-trigger tools
+  ${chalk.cyan("cograph instructions")}                   Print system-prompt snippet to auto-trigger tools
 
 ${chalk.bold("Options:")}
   --root <path>   Override project root
@@ -125,7 +125,7 @@ function cmdStart() {
   console.log(chalk.green("✓ BlastRadius MCP server started"));
   console.log(`  URL: ${chalk.cyan(`http://localhost:${portBR}/mcp`)}  (pid ${brProc.pid})`);
   console.log();
-  console.log(`Run ${chalk.cyan("ctx register --http")} to write these URLs into your editor config.`);
+  console.log(`Run ${chalk.cyan("cograph register --http")} to write these URLs into your editor config.`);
 }
 
 function cmdStop() {
@@ -165,7 +165,7 @@ function cmdStatus() {
   // Index stats
   const dbPath = join(PROJECT_ROOT, ".contextgraph/index.sqlite");
   if (!existsSync(dbPath)) {
-    console.log(chalk.yellow("\nNo index found. Run: ctx index"));
+    console.log(chalk.yellow("\nNo index found. Run: cograph index"));
     return;
   }
 
@@ -240,9 +240,9 @@ function cmdRegister() {
 
   if (!httpMode) {
     console.log(chalk.gray("\nMode: stdio (editor manages server lifecycle)"));
-    console.log(chalk.gray("Tip:  run 'ctx start' + 'ctx register --http' for HTTP mode (shared across editors)"));
+    console.log(chalk.gray("Tip:  run 'cograph start' + 'cograph register --http' for HTTP mode (shared across editors)"));
   } else {
-    console.log(chalk.gray("\nMode: HTTP (servers run independently via 'ctx start')"));
+    console.log(chalk.gray("\nMode: HTTP (servers run independently via 'cograph start')"));
   }
 }
 
@@ -271,7 +271,7 @@ async function cmdMemory() {
     }
   } else if (sub === "recall") {
     const topic = args.slice(2).join(" ");
-    if (!topic) { console.error("Usage: ctx memory recall <topic>"); process.exit(1); }
+    if (!topic) { console.error("Usage: cograph memory recall <topic>"); process.exit(1); }
     const results = await recallLearnings(topic, PROJECT_ROOT);
     if (!results.length) { console.log("No relevant memories found."); return; }
     for (const r of results) {
@@ -280,7 +280,7 @@ async function cmdMemory() {
     }
   } else if (sub === "delete") {
     const id = args[2];
-    if (!id) { console.error("Usage: ctx memory delete <id>"); process.exit(1); }
+    if (!id) { console.error("Usage: cograph memory delete <id>"); process.exit(1); }
     const ok = deleteMemory(id, PROJECT_ROOT);
     console.log(ok ? chalk.green("Deleted.") : chalk.red("Not found."));
   } else if (sub === "audit") {
@@ -288,12 +288,12 @@ async function cmdMemory() {
     const { audited, markedStale } = await auditMemories(PROJECT_ROOT);
     if (markedStale > 0) {
       console.log(chalk.yellow(`⚠  ${markedStale} of ${audited} memories flagged stale`));
-      console.log(chalk.gray("   Run 'ctx memory list' to review, 'ctx memory delete <id>' to clean up."));
+      console.log(chalk.gray("   Run 'cograph memory list' to review, 'cograph memory delete <id>' to clean up."));
     } else {
       console.log(chalk.green(`✓ All ${audited} memories look current.`));
     }
   } else {
-    console.error("Usage: ctx memory [list|recall|delete|audit]");
+    console.error("Usage: cograph memory [list|recall|delete|audit]");
   }
 }
 
@@ -304,7 +304,7 @@ function cmdCheckpoint() {
 
   if (sub === "save") {
     const summary = args.slice(2).join(" ");
-    if (!summary) { console.error("Usage: ctx checkpoint save <summary>"); process.exit(1); }
+    if (!summary) { console.error("Usage: cograph checkpoint save <summary>"); process.exit(1); }
     const id = saveCheckpoint(summary, [], PROJECT_ROOT);
     console.log(chalk.green(`✓ Checkpoint saved (${id.slice(0, 8)})`));
   } else if (sub === "get") {
@@ -325,7 +325,7 @@ function cmdCheckpoint() {
       console.log(`${chalk.gray(cp.id.slice(0, 8))} ${chalk.yellow(`[${date}]`)} ${cp.summary.slice(0, 80)}`);
     }
   } else {
-    console.error("Usage: ctx checkpoint [save|get|list]");
+    console.error("Usage: cograph checkpoint [save|get|list]");
   }
 }
 
@@ -333,7 +333,7 @@ function cmdCheckpoint() {
 
 function cmdBlast() {
   const file = resolve(args[1] ?? "");
-  if (!args[1]) { console.error("Usage: ctx blast <file>"); process.exit(1); }
+  if (!args[1]) { console.error("Usage: cograph blast <file>"); process.exit(1); }
   const impacts = analyzeImpact(file, PROJECT_ROOT);
   const { score, label } = computeRiskScore(impacts);
   const color = label === "critical" ? chalk.red : label === "high" ? chalk.yellow : label === "medium" ? chalk.blue : chalk.green;

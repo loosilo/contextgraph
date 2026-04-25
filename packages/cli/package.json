@@ -4,11 +4,11 @@
   "type": "module",
   "main": "./src/index.ts",
   "bin": {
-    "ctx": "./src/index.ts"
+    "cograph": "./src/index.ts"
   },
   "files": ["src"],
   "scripts": {
-    "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/ctx",
+    "build": "bun build ./src/index.ts --target bun --compile --outfile ./dist/cograph",
     "dev": "bun ./src/index.ts"
   },
   "dependencies": {
