@@ -197,6 +197,7 @@ function cmdStatus() {
 
 function cmdRegister() {
   const httpMode = args.includes("--http");
+  const bunPath = spawnSync("which", ["bun"], { encoding: "utf8" }).stdout.trim() || "bun";
   const pids = readPids();
 
   // Determine config file locations for known editors
