@@ -18,6 +18,7 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT ?? process.cwd();
 // ── Paths ───────────────────────────────────────────────────────────────────
 
 const CONTEXTGRAPH_DIR = join(PROJECT_ROOT, ".contextgraph");
+const VERSION_CACHE    = join(process.env.HOME ?? "~", ".cache", "cograph", "version.json");
 const PIDS_FILE = join(CONTEXTGRAPH_DIR, "servers.json");
 const MCP_CG_HTTP  = join(dirname(_require.resolve("@loosilo/contextgraph-mcp/package.json")), "src/http.ts");
 const MCP_BR_HTTP  = join(dirname(_require.resolve("@loosilo/blastradius-mcp/package.json")), "src/http.ts");
@@ -62,6 +63,7 @@ ${chalk.bold("Analysis:")}
 ${chalk.bold("Setup:")}
 
   ${chalk.cyan("cograph instructions")}                   Print system-prompt snippet to auto-trigger tools
+  ${chalk.cyan("cograph update")}                         Update cograph to the latest version
 
 ${chalk.bold("Options:")}
   --root <path>   Override project root
@@ -401,10 +403,60 @@ At the end of every conversation:
   console.log(chalk.gray("Cursor system prompt: ") + chalk.cyan("Settings → Features → Rules for AI"));
 }
 
+// ── Update ──────────────────────────────────────────────────────────────────
+
+const CURRENT_VERSION: string = (_require("../package.json") as { version: string }).version;
+const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+function semverGt(a: string, b: string): boolean {
+  const pa = a.split(".").map(Number);
+  const pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) > (pb[i] ?? 0)) return true;
+    if ((pa[i] ?? 0) < (pb[i] ?? 0)) return false;
+  }
+  return false;
+}
+
+async function checkForUpdate(): Promise<string | null> {
+  try {
+    if (existsSync(VERSION_CACHE)) {
+      const cache = JSON.parse(readFileSync(VERSION_CACHE, "utf8")) as { latest: string; checkedAt: number };
+      if (Date.now() - cache.checkedAt < CHECK_INTERVAL_MS) {
+        return semverGt(cache.latest, CURRENT_VERSION) ? cache.latest : null;
+      }
+    }
+    // Cache stale or missing — refresh in background, don't block this run
+    fetch("https://registry.npmjs.org/@loosilo/contextgraph-cli/latest")
+      .then(r => r.json() as Promise<{ version: string }>)
+      .then(data => {
+        mkdirSync(dirname(VERSION_CACHE), { recursive: true });
+        writeFileSync(VERSION_CACHE, JSON.stringify({ latest: data.version, checkedAt: Date.now() }));
+      })
+      .catch(() => {});
+  } catch { /**/ }
+  return null;
+}
+
+function cmdUpdate() {
+  console.log(chalk.cyan("Updating cograph to latest..."));
+  const result = spawnSync("bun", ["install", "-g", "@loosilo/contextgraph-cli@latest"], { stdio: "inherit" });
+  if (result.status === 0) {
+    // Bust the version cache so next run re-checks
+    try { rmSync(VERSION_CACHE); } catch { /**/ }
+    console.log(chalk.green("✓ Updated. Run any cograph command to use the new version."));
+  } else {
+    console.error(chalk.red("Update failed. Try: bun install -g @loosilo/contextgraph-cli@latest"));
+    process.exit(1);
+  }
+}
+
 // ── Router ──────────────────────────────────────────────────────────────────
 
 if (!command || command === "--help" || command === "help") {
   help();
+} else if (command === "update") {
+  cmdUpdate();
 } else if (command === "start") {
   cmdStart();
 } else if (command === "stop") {
@@ -427,4 +479,13 @@ if (!command || command === "--help" || command === "help") {
   console.error(chalk.red(`Unknown command: ${command}`));
   help();
   process.exit(1);
+}
+
+// Show update notice after any command (non-blocking)
+if (command && command !== "update") {
+  const newVersion = await checkForUpdate();
+  if (newVersion) {
+    console.log(chalk.yellow(`\n  Update available: ${chalk.bold(newVersion)} (current: ${CURRENT_VERSION})`));
+    console.log(chalk.gray(`  Run ${chalk.cyan("cograph update")} to upgrade`));
+  }
 }
