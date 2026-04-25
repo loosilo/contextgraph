@@ -86,7 +86,7 @@ Show me all stored memories for this project.
 
 Terminal alternative:
 ```bash
-ctx memory list
+cograph memory list
 # a3f1b2c0 [4/20/2026] decrementStock() has a TOCTOU race condition...
 #           tags: products, concurrency, bug
 # 9e7d4f12 [4/18/2026] Sessions are stored in-memory, not Redis...
@@ -96,7 +96,7 @@ ctx memory list
 ### Search memories by topic
 
 ```bash
-ctx memory recall "database transactions"
+cograph memory recall "database transactions"
 ```
 
 ### Delete a stale memory
@@ -109,7 +109,7 @@ Delete the memory about decrementStock race condition.
 
 Terminal:
 ```bash
-ctx memory delete a3f1b2c0
+cograph memory delete a3f1b2c0
 # Deleted.
 ```
 

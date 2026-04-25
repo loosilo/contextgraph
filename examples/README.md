@@ -10,10 +10,10 @@ Each scenario shows the prompts you'd type, which MCP tools fire, and what you g
 
 ```bash
 # 1. Index your project
-ctx index .
+cograph index .
 
 # 2. Register the MCP servers
-ctx register
+cograph register
 
 # 3. Restart your editor (Claude Code / Cursor)
 ```

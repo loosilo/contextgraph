@@ -97,4 +97,4 @@ Graph rebuilt for 143 files.
 - Before editing any file imported by more than 2 other files
 - Before moving or renaming exported functions
 - Before changing function signatures that are used across modules
-- As a pre-commit sanity check: `ctx blast <file>` in the terminal
+- As a pre-commit sanity check: `cograph blast <file>` in the terminal

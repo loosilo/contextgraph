@@ -12,12 +12,12 @@ cd /path/to/contextgraph
 bun install && bun run build && bun link
 
 # Start both servers in the background
-ctx start
+cograph start
 
 # Register with your editor
-ctx register --http   # Cursor / Windsurf
+cograph register --http   # Cursor / Windsurf
 # or
-ctx register          # Claude Code (stdio)
+cograph register          # Claude Code (stdio)
 ```
 
 Restart your editor. The `contextgraph` and `blastradius` tools are now available in every session.
@@ -30,7 +30,7 @@ Navigate to the project you want to work on and index it:
 
 ```bash
 cd /path/to/my-project
-PROJECT_ROOT=$(pwd) ctx index .
+PROJECT_ROOT=$(pwd) cograph index .
 # Indexing /path/to/my-project...
 # ✓ Indexed 142 files, 891 chunks
 ```
@@ -50,7 +50,7 @@ Use the index_project tool to index this codebase.
 What's the current index status for this project?
 ```
 
-**Agent uses:** `index_project` (or you can just run `ctx status` in the terminal)
+**Agent uses:** `index_project` (or you can just run `cograph status` in the terminal)
 
 **Terminal:**
 ```

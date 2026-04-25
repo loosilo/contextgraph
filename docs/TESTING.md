@@ -178,7 +178,7 @@ This opens a browser UI where you can invoke each tool and inspect the response.
 Alternatively, test via Claude Code once registered:
 
 ```bash
-ctx register
+cograph register
 # Then in Claude Code, type:
 # search_context("how does X work")
 ```
